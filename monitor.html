@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Halaman Monitor Server Publik</title>
+
+    <script>
+        // Ensure dark mode is always applied for this theme
+        document.documentElement.classList.add('dark');
+        localStorage.setItem('color-theme', 'dark');
+    </script>
+
+    <!-- Load Tailwind CSS from CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Load Google Fonts: Inter & Roboto Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <!-- Load Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        /* --- Digital Server Theme Configuration --- */
+        :root {
+            --bg-dark: #020617; /* Slate 950 */
+            --card-bg: rgba(10, 15, 30, 0.5); /* Darker semi-transparent */
+            --border-color: rgba(0, 225, 255, 0.2); /* Cyan-ish for borders */
+            --glow-color: rgba(0, 150, 255, 0.2); /* Blue glow */
+            --text-primary: #e0eaff; /* Light blue-white */
+            --text-secondary: #94a3b8; /* Slate 400 */
+            --accent-cyan: #00e1ff; /* Bright cyan */
+            --accent-magenta: #f000ff; /* Bright magenta */
+            --accent-green: #00ff9c; /* Bright green */
+        }
+
+        /* Background animation for grid pattern */
+        @keyframes bg-pan {
+            0% { background-position: 0% 0%; }
+            100% { background-position: 40px 40px; }
+        }
+
+        body { 
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
+            background-image: 
+                linear-gradient(var(--border-color) 1px, transparent 1px),
+                linear-gradient(to right, var(--border-color) 1px, transparent 1px);
+            background-size: 40px 40px;
+            animation: bg-pan 6s linear infinite;
+        }
+
+        .font-mono { font-family: 'Roboto Mono', monospace; }
+
+        /* --- Digital Card Styles --- */
+        .digital-card {
+            background-color: var(--card-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-color);
+            border-radius: 1rem; /* Rounded corners */
+            box-shadow: 0 0 25px var(--glow-color);
+            transition: all 0.3s ease;
+        }
+        .digital-card:hover {
+            border-color: rgba(0, 225, 255, 0.5);
+            box-shadow: 0 0 35px var(--glow-color);
+            transform: translateY(-2px);
+        }
+
+        /* --- Progress Bar Styles --- */
+        .progress-bar-bg {
+            background-color: rgba(0, 225, 255, 0.1);
+            border-radius: 9999px; /* Full rounded */
+        }
+        .progress-bar {
+            box-shadow: 0 0 10px;
+            border-radius: 9999px; /* Full rounded */
+        }
+        #cpu-bar { background-color: var(--accent-cyan); box-shadow: 0 0 10px var(--accent-cyan); }
+        #ram-bar { background-color: var(--accent-magenta); box-shadow: 0 0 10px var(--accent-magenta); }
+        #disk-bar { background-color: #facc15; box-shadow: 0 0 10px #facc15; } /* Yellow for disk */
+
+        /* --- Text and Title Styles --- */
+        @keyframes text-flicker {
+            0%, 19.9%, 22%, 62.9%, 64%, 64.9%, 70%, 100% {
+                opacity: 0.99;
+                text-shadow: 0 0 12px var(--accent-cyan);
+            }
+            20%, 21.9%, 63%, 63.9%, 65%, 69.9% {
+                opacity: 0.4;
+                text-shadow: none;
+            }
+        }
+        .main-title {
+            font-family: 'Roboto Mono', monospace;
+            text-shadow: 0 0 12px var(--accent-cyan);
+            animation: text-flicker 4s linear infinite;
+        }
+        .shining-text {
+            color: var(--accent-green);
+            text-shadow: 0 0 12px var(--accent-green);
+        }
+
+        /* --- Entry Animations --- */
+        @keyframes fade-in-down {
+            from { opacity: 0; transform: translateY(-15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-entry {
+            animation: fade-in-down 0.6s ease-out forwards;
+            opacity: 0; /* Start invisible */
+        }
+        @keyframes fade-in-up { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .stat-value.animate-update { animation: fade-in-up 0.5s ease-out; }
+        
+        /* Server icon glow animation */
+        @keyframes port-glow {
+            0%, 100% { border-color: var(--accent-cyan); box-shadow: 0 0 10px var(--accent-cyan); }
+            50% { border-color: rgba(0, 225, 255, 0.5); box-shadow: 0 0 20px var(--accent-cyan); }
+        }
+        .server-icon-container {
+            animation: port-glow 3s ease-in-out infinite;
+            border-radius: 9999px; /* Full rounded */
+        }
+
+        /* --- Award Card Animations --- */
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) skewX(-20deg); }
+            100% { transform: translateX(200%) skewX(-20deg); }
+        }
+        @keyframes float-icon {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+        .award-card {
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, #003973, #2c003e); /* Dark blue to dark purple gradient */
+            border-radius: 1rem; /* Rounded corners */
+        }
+        .award-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(to right, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.2) 50%, rgba(255, 255, 255, 0) 100%);
+            transform: translateX(-100%) skewX(-20deg);
+            animation: shimmer 3s infinite 1.5s; /* Shimmer effect */
+        }
+        .award-card i[data-lucide="award"] {
+            animation: float-icon 4s ease-in-out infinite; /* Floating icon effect */
+        }
+        
+        /* --- Like Button Styles and Animations --- */
+        .like-button {
+            border: 2px solid var(--accent-magenta);
+            color: var(--accent-magenta);
+            text-shadow: 0 0 8px var(--accent-magenta);
+            transition: all 0.3s ease;
+            border-radius: 0.5rem; /* Rounded corners */
+        }
+        .like-button:hover {
+            background-color: rgba(240, 0, 255, 0.1);
+            box-shadow: 0 0 15px var(--accent-magenta);
+            transform: scale(1.02);
+        }
+        .like-button.liked {
+            background-color: var(--accent-magenta);
+            color: white;
+            box-shadow: 0 0 15px var(--accent-magenta);
+        }
+        @keyframes pulse-like {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        .like-button.pulsing {
+            animation: pulse-like 0.3s ease-out;
+        }
+
+        /* --- Custom Message Modal Styles --- */
+        .message-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 1.5rem;
+            border-radius: 0.75rem; /* Rounded corners */
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+            max-width: 90%;
+            width: 400px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            text-align: center;
+        }
+        .message-modal.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        /* Overlay for modal */
+        .message-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .message-modal-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Main Container -->
+    <div class="container mx-auto p-4 sm:p-6 lg:p-8">
+
+        <!-- Header Panel -->
+        <header class="text-center mb-8 animate-entry" style="animation-delay: 100ms;">
+            <h1 class="text-3xl sm:text-4xl font-bold main-title" style="color: var(--accent-cyan);">NET ICON SERVER</h1>
+            <p style="color: var(--text-secondary);" class="mt-2">Pantau detak jantung layanan kami secara real-time.</p>
+            <div id="datetime-widget" class="mt-4 text-sm sm:text-base font-medium" style="color: var(--text-secondary);">
+                <p>Memuat waktu...</p>
+            </div>
+        </header>
+
+        <!-- Main Grid Layout -->
+        <main class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+            <!-- Left Column (Main Info) -->
+            <div class="lg:col-span-2 space-y-6 animate-entry" style="animation-delay: 300ms;">
+                <div class="digital-card p-6">
+                    <div class="flex flex-col sm:flex-row items-center sm:items-start space-y-4 sm:space-y-0 sm:space-x-4 mb-6">
+                        <div class="server-icon-container w-16 h-16 rounded-full flex items-center justify-center flex-shrink-0" style="border: 2px solid var(--accent-cyan); background-color: rgba(0, 194, 255, 0.1);">
+                            <i id="server-icon" data-lucide="server" class="w-8 h-8" style="color: var(--accent-cyan);"></i>
+                        </div>
+                        <div class="text-center sm:text-left">
+                            <h2 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-fuchsia-500">neticon</h2>
+                            <p class="text-sm" style="color: var(--text-secondary);">110.232.84.186</p>
+                            <div id="server-status" class="flex items-center justify-center sm:justify-start text-sm mt-1" style="color: var(--accent-green);" role="status" aria-live="polite">
+                                <span class="w-2 h-2 rounded-full mr-2 animate-pulse" style="background-color: var(--accent-green);"></span>
+                                <span class="font-semibold" style="text-shadow: 0 0 8px var(--accent-green);">Performa Optimal, Koneksi Lancar!</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Server Statistics (Compact Layout) -->
+                    <div class="space-y-4 mt-4">
+                        <!-- CPU Load -->
+                        <div class="grid grid-cols-12 items-center gap-x-2 sm:gap-x-4">
+                            <h3 class="col-span-4 sm:col-span-3 text-xs sm:text-sm font-medium truncate" style="color: var(--text-secondary);">Beban CPU</h3>
+                            <div class="col-span-6 sm:col-span-7 w-full rounded-full h-2 progress-bar-bg">
+                                <div id="cpu-bar" class="progress-bar h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                            </div>
+                            <p id="cpu-usage" class="col-span-2 text-sm font-semibold stat-value text-right font-mono" style="color: var(--accent-cyan);">...</p>
+                        </div>
+                        <!-- RAM Usage -->
+                        <div class="grid grid-cols-12 items-center gap-x-2 sm:gap-x-4">
+                            <h3 class="col-span-4 sm:col-span-3 text-xs sm:text-sm font-medium truncate" style="color: var(--text-secondary);">Penggn. RAM</h3>
+                            <div class="col-span-6 sm:col-span-7 w-full rounded-full h-2 progress-bar-bg">
+                                <div id="ram-bar" class="progress-bar h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                            </div>
+                            <p id="ram-usage" class="col-span-2 text-sm font-semibold stat-value text-right font-mono" style="color: var(--accent-magenta);">...</p>
+                        </div>
+                        <!-- Storage -->
+                        <div class="grid grid-cols-12 items-center gap-x-2 sm:gap-x-4">
+                            <h3 class="col-span-4 sm:col-span-3 text-xs sm:text-sm font-medium truncate" style="color: var(--text-secondary);">Penyimpanan</h3>
+                            <div class="col-span-6 sm:col-span-7 w-full rounded-full h-2 progress-bar-bg">
+                                <div id="disk-bar" class="progress-bar h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                            </div>
+                            <p id="disk-usage" class="col-span-2 text-sm font-semibold stat-value text-right font-mono" style="color: #facc15;">...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column (Additional Widgets) -->
+            <div class="lg:col-span-1 space-y-6 animate-entry" style="animation-delay: 500ms;">
+                <!-- 5-Year Award Card -->
+                <div class="award-card digital-card p-6">
+                    <div class="text-center relative z-10">
+                        <div class="flex justify-center mb-3">
+                            <i data-lucide="award" class="w-8 h-8 text-white" style="filter: drop-shadow(0 2px 3px rgba(0,0,0,0.4));"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-white" style="text-shadow: 1px 1px 2px rgba(0,0,0,0.6);">Bersama Selama 5 Tahun</h3>
+                        <p class="text-sm text-white/95 mt-1" style="text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">
+                            Terima kasih telah menjadi bagian dari perjalanan kami. Kesetiaan Anda adalah penghargaan terbesar.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Premium VPN Users Card -->
+                <div class="digital-card p-6">
+                    <div class="text-center">
+                        <h3 class="text-lg font-semibold flex items-center justify-center mb-2">
+                            <i data-lucide="shield-check" class="w-5 h-5 mr-2" style="color: var(--accent-green);"></i>
+                            Pengguna VPN Premium
+                        </h3>
+                        <p id="vpn-users" class="text-5xl font-bold shining-text stat-value">...</p>
+                    </div>
+                </div>
+                
+                <!-- Like Button Card -->
+                <div class="digital-card p-6 text-center">
+                    <h3 class="text-lg font-semibold mb-3">Sukai Layanan Kami?</h3>
+                    <button id="like-button" class="like-button w-full flex items-center justify-center space-x-2 px-4 py-2 rounded-lg font-semibold">
+                        <i data-lucide="heart" class="w-5 h-5 transition-all duration-300"></i>
+                        <span id="like-count">132</span>
+                    </button>
+                </div>
+
+                <!-- Social Media Card -->
+                <div class="digital-card p-6">
+                    <h3 class="text-lg font-semibold mb-4 text-center">Ikuti Kami</h3>
+                    <ul class="space-y-3">
+                        <!-- YouTube -->
+                        <li>
+                            <a href="https://www.youtube.com/@NET-ICON/featured" target="_blank" rel="noopener noreferrer" class="flex items-center space-x-3 transition-colors duration-200 group" style="color: var(--text-secondary);">
+                                <i data-lucide="youtube" class="w-5 h-5 group-hover:text-red-500"></i>
+                                <span class="font-medium text-sm group-hover:underline" style="color: var(--text-primary);">NET ICON YouTube</span>
+                            </a>
+                        </li>
+                        <!-- TikTok -->
+                        <li>
+                            <a href="https://www.tiktok.com/@netic0n?_t=ZS-8yJZXPEo5rt&_r=1" target="_blank" rel="noopener noreferrer" class="flex items-center space-x-3 transition-colors duration-200 group" style="color: var(--text-secondary);">
+                                <svg viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 group-hover:text-white">
+                                    <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-2.43.03-4.83-.95-6.43-2.98-1.55-1.99-2.31-4.54-2.2-7.18.11-2.61 1.23-5.07 3.23-6.66 1.96-1.56 4.41-2.28 6.73-2.11.12 2.19.01 4.4-.02 6.59-.25 1.62-1.15 3.2-2.61 4.01-1.64.9-3.71.8-5.22-.24-.15-.1-.28-.21-.42-.32-.12-.12-.25-.25-.36-.39-.22-.27-.4-.57-.55-.89-.16-.33-.29-.67-.39-1.01-.08-.27-.15-.55-.21-.82-.02-.1-.04-.2-.05-.31h-3.48v4.26c.86.63 1.83 1.1 2.82 1.42 1.03.33 2.1.52 3.18.56 2.87.11 5.61-1.57 6.6-4.3.73-1.99 1.01-4.19.9-6.32.22-2.15.02-4.31-.02-6.46z"></path>
+                                </svg>
+                                <span class="font-medium text-sm group-hover:underline" style="color: var(--text-primary);">@netic0n</span>
+                            </a>
+                        </li>
+                        <!-- Facebook -->
+                        <li>
+                            <a href="https://www.facebook.com/net.icon.2025" target="_blank" rel="noopener noreferrer" class="flex items-center space-x-3 transition-colors duration-200 group" style="color: var(--text-secondary);">
+                                <i data-lucide="facebook" class="w-5 h-5 group-hover:text-blue-500"></i>
+                                <span class="font-medium text-sm group-hover:underline" style="color: var(--text-primary);">NET ICON Facebook</span>
+                            </a>
+                        </li>
+                        <!-- Instagram -->
+                        <li>
+                            <a href="https://www.instagram.com/rahmat_actor?igsh=dnk3aDExeWhjaWF5" target="_blank" rel="noopener noreferrer" class="flex items-center space-x-3 transition-colors duration-200 group" style="color: var(--text-secondary);">
+                                <i data-lucide="instagram" class="w-5 h-5 group-hover:text-pink-500"></i>
+                                <span class="font-medium text-sm group-hover:underline" style="color: var(--text-primary);">Rahmat Awaludin</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Custom Message Modal and Overlay -->
+    <div id="message-modal-overlay" class="message-modal-overlay"></div>
+    <div id="message-modal" class="message-modal bg-red-900 border border-red-700 text-red-200" role="alert" aria-live="assertive">
+        <div class="flex items-center mb-2">
+            <i data-lucide="circle-alert" class="w-6 h-6 mr-2 flex-shrink-0"></i>
+            <h4 id="modal-title" class="font-bold text-lg">Kesalahan Koneksi!</h4>
+        </div>
+        <p id="modal-message">Gagal terhubung ke server. Memuat data simulasi atau coba lagi nanti.</p>
+        <button id="close-modal" class="mt-4 px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors duration-200">Tutup</button>
+    </div>
+
+    <script>
+        // --- CONFIGURATION ---
+        // API endpoint for server statistics.
+        const API_URL = 'http://110.232.84.186:5001/stats';
+
+        // --- DOM ELEMENTS ---
+        // Cache frequently accessed DOM elements for performance.
+        const elements = {
+            cpuUsage: document.getElementById('cpu-usage'),
+            ramUsage: document.getElementById('ram-usage'),
+            diskUsage: document.getElementById('disk-usage'),
+            vpnUsers: document.getElementById('vpn-users'),
+            cpuBar: document.getElementById('cpu-bar'),
+            ramBar: document.getElementById('ram-bar'),
+            diskBar: document.getElementById('disk-bar'),
+            serverStatus: document.getElementById('server-status'),
+            serverIcon: document.getElementById('server-icon'),
+            dateTimeWidget: document.getElementById('datetime-widget'),
+            likeButton: document.getElementById('like-button'),
+            likeCount: document.getElementById('like-count'),
+            messageModal: document.getElementById('message-modal'),
+            modalTitle: document.getElementById('modal-title'),
+            modalMessage: document.getElementById('modal-message'),
+            closeModalBtn: document.getElementById('close-modal'),
+            messageModalOverlay: document.getElementById('message-modal-overlay') // Added modal overlay
+        };
+
+        // --- STATE VARIABLES ---
+        let simulationIntervalId = null; // Stores the interval ID for simulation mode.
+
+        // --- CUSTOM MESSAGE MODAL FUNCTIONS ---
+        /**
+         * Displays a custom modal with a given title and message.
+         * @param {string} title - The title of the modal.
+         * @param {string} message - The message content of the modal.
+         */
+        function showMessageModal(title, message) {
+            elements.modalTitle.textContent = title;
+            elements.modalMessage.textContent = message;
+            elements.messageModal.classList.add('show');
+            elements.messageModalOverlay.classList.add('show'); // Show overlay
+        }
+
+        /**
+         * Hides the custom modal.
+         */
+        function hideMessageModal() {
+            elements.messageModal.classList.remove('show');
+            elements.messageModalOverlay.classList.remove('show'); // Hide overlay
+        }
+
+        // Add event listener to close button.
+        elements.closeModalBtn.addEventListener('click', hideMessageModal);
+        // Close modal when clicking outside (on overlay)
+        elements.messageModalOverlay.addEventListener('click', hideMessageModal);
+
+        // --- DATE & TIME WIDGET FUNCTIONS ---
+        /**
+         * Updates the date and time display in the header.
+         * Formats the date as "Day, Date Month Year | HH:MM:SS WIB".
+         */
+        function updateDateTime() {
+            const now = new Date();
+            const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+            const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+            
+            const dayName = days[now.getDay()];
+            const date = now.getDate();
+            const monthName = months[now.getMonth()];
+            const year = now.getFullYear();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            
+            elements.dateTimeWidget.innerHTML = `<p>${dayName}, ${date} ${monthName} ${year} | <span class="font-mono">${hours}:${minutes}:${seconds} WIB</span></p>`;
+        }
+
+        // --- DATA SIMULATION FUNCTIONS ---
+        /**
+         * Updates a DOM element and its corresponding progress bar with a new value.
+         * Adds and removes an animation class for visual feedback.
+         * @param {HTMLElement} el - The text element (e.g., cpu-usage).
+         * @param {HTMLElement} bar - The progress bar element (e.g., cpu-bar).
+         * @param {number} value - The numerical value to display.
+         * @param {string} unit - The unit suffix (e.g., '%').
+         */
+        const updateElement = (el, bar, value, unit = '%') => {
+            if (el && bar) {
+                el.textContent = `${Math.round(value)}${unit}`;
+                bar.style.width = `${value}%`;
+                // Add animation class for a brief moment for visual update
+                el.classList.add('animate-update');
+                setTimeout(() => el.classList.remove('animate-update'), 500);
+            }
+        };
+
+        /**
+         * Generates and displays simulated server statistics.
+         * Used when the actual API connection fails.
+         */
+        function runSimulation() {
+            console.log("Menjalankan pembaruan data simulasi...");
+            // Add a brief pulse animation to the server icon
+            elements.serverIcon.classList.add('server-icon-pulse');
+            setTimeout(() => elements.serverIcon.classList.remove('server-icon-pulse'), 200);
+
+            // Generate random simulated stats within reasonable ranges
+            const simulatedStats = {
+                cpu_percent: Math.random() * 80 + 10, // 10-90%
+                ram_percent: Math.random() * 70 + 20, // 20-90%
+                disk_percent: 65 + Math.random() * 5, // 65-70% (more stable)
+                vpn_premium_users: Math.floor(Math.random() * 601 + 400) // 400-1000 users
+            };
+
+            // Update all relevant DOM elements with simulated data
+            updateElement(elements.cpuUsage, elements.cpuBar, simulatedStats.cpu_percent);
+            updateElement(elements.ramUsage, elements.ramBar, simulatedStats.ram_percent);
+            updateElement(elements.diskUsage, elements.diskBar, simulatedStats.disk_percent);
+
+            if (elements.vpnUsers) {
+                elements.vpnUsers.textContent = simulatedStats.vpn_premium_users;
+                elements.vpnUsers.classList.add('animate-update');
+                setTimeout(() => elements.vpnUsers.classList.remove('animate-update'), 500);
+            }
+        }
+        
+        /**
+         * Initiates simulation mode when API connection fails.
+         * Clears any existing simulation interval before starting a new one.
+         */
+        function startSimulationMode() {
+            // Prevent multiple simulation intervals from running simultaneously
+            if (simulationIntervalId) {
+                clearInterval(simulationIntervalId);
+            }
+
+            console.log("Memulai mode simulasi data karena koneksi gagal.");
+            const statusDiv = elements.serverStatus;
+            statusDiv.style.color = '#ff5555'; // Red color for error status
+            statusDiv.innerHTML = `
+                <span class="w-2 h-2 rounded-full mr-2" style="background-color: #ff5555;"></span>
+                <span class="font-semibold" style="text-shadow: 0 0 8px #ff5555;">Gagal terhubung. Mode Simulasi.</span>`;
+            
+            // Re-render Lucide icons if they are dynamically added/changed
+            lucide.createIcons(); 
+            
+            // Show a modal explaining the connection issue and simulation mode.
+            showMessageModal("Kesalahan Koneksi!", `Gagal terhubung ke ${API_URL}. Ini mungkin karena masalah Mixed Content (HTTPS ke HTTP) atau CORS. Menjalankan mode simulasi data.`);
+            
+            runSimulation(); // Run simulation once immediately
+            simulationIntervalId = setInterval(runSimulation, 5000); // Repeat simulation every 5 seconds
+        }
+
+        // --- MAIN STATS UPDATE FUNCTION ---
+        /**
+         * Fetches real-time server statistics from the API.
+         * If successful, updates the UI. If unsuccessful, falls back to simulation mode.
+         */
+        async function updateStats() {
+            try {
+                const response = await fetch(API_URL);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                // If simulation mode was active, stop it as connection is now successful.
+                if (simulationIntervalId) {
+                    clearInterval(simulationIntervalId);
+                    simulationIntervalId = null;
+                    console.log("Koneksi berhasil, mode simulasi dihentikan.");
+                    hideMessageModal(); // Hide the error modal if it was showing
+                }
+
+                const stats = await response.json();
+                // For VPN users, still use simulation as the API might not provide it.
+                stats.vpn_premium_users = Math.floor(Math.random() * 601 + 400);
+
+                // Add a brief pulse animation to the server icon
+                elements.serverIcon.classList.add('server-icon-pulse');
+                setTimeout(() => elements.serverIcon.classList.remove('server-icon-pulse'), 200);
+
+                // Update server status to 'Connected'
+                const statusDiv = elements.serverStatus;
+                statusDiv.style.color = 'var(--accent-green)';
+                statusDiv.innerHTML = `
+                    <span class="w-2 h-2 rounded-full mr-2 animate-pulse" style="background-color: var(--accent-green);"></span>
+                    <span class="font-semibold" style="text-shadow: 0 0 8px var(--accent-green);">Performa Optimal, Koneksi Lancar!</span>`;
+                
+                // Update CPU, RAM, and Disk usage
+                updateElement(elements.cpuUsage, elements.cpuBar, stats.cpu_percent);
+                updateElement(elements.ramUsage, elements.ramBar, stats.ram_percent);
+                updateElement(elements.diskUsage, elements.diskBar, stats.disk_percent);
+                
+                // Update VPN premium users count
+                elements.vpnUsers.textContent = stats.vpn_premium_users;
+                elements.vpnUsers.classList.add('animate-update');
+                setTimeout(() => elements.vpnUsers.classList.remove('animate-update'), 500);
+
+            } catch (error) {
+                console.error("Gagal mengambil data statistik:", error);
+                // If fetch fails, start simulation mode.
+                startSimulationMode();
+            }
+        }
+
+        // --- LIKE BUTTON FUNCTIONALITY ---
+        const initialLikeCount = 132;
+        // Retrieve like count from localStorage, default to initial if not found.
+        let likeCount = parseInt(localStorage.getItem('serverPageLikeCount') || initialLikeCount.toString());
+        
+        /**
+         * Updates the like button UI (count and 'liked' state).
+         */
+        function updateLikeUI() {
+            elements.likeCount.textContent = likeCount;
+            // Add 'liked' class if the count is higher than the initial, indicating user has liked.
+            elements.likeButton.classList.toggle('liked', likeCount > initialLikeCount);
+        }
+
+        // Add event listener for the like button click.
+        elements.likeButton.addEventListener('click', () => {
+            likeCount++; // Increment like count
+            localStorage.setItem('serverPageLikeCount', likeCount); // Save to localStorage
+            updateLikeUI(); // Update UI
+            
+            // Add pulsing animation for visual feedback on click
+            elements.likeButton.classList.add('pulsing');
+            setTimeout(() => elements.likeButton.classList.remove('pulsing'), 300);
+        });
+
+        // --- PAGE INITIALIZATION ---
+        // Run functions when the DOM is fully loaded.
+        document.addEventListener('DOMContentLoaded', () => {
+            // Replace data-lucide attributes with SVG icons.
+            lucide.createIcons();
+            
+            // Initialize and continuously update date and time.
+            updateDateTime();
+            setInterval(updateDateTime, 1000);
+
+            // Initialize like button UI.
+            updateLikeUI();
+            
+            // Fetch and update server stats initially, then every 5 seconds.
+            updateStats();
+            setInterval(updateStats, 5000);
+        });
+    </script>
+</body>
+</html>
