@@ -370,7 +370,7 @@
             <i data-lucide="circle-alert" class="w-6 h-6 mr-2 flex-shrink-0"></i>
             <h4 id="modal-title" class="font-bold text-lg">Kesalahan Koneksi!</h4>
         </div>
-        <p id="modal-message">Gagal terhubung ke server. Memuat data simulasi atau coba lagi nanti.</p>
+        <p id="modal-message">Gagal terhubung ke server. Ini kemungkinan besar karena server API Anda di `http://110.232.84.186:5001` tidak dapat diakses secara publik (misalnya, diblokir oleh firewall atau tidak berjalan), bukan masalah pada kode halaman ini. Menjalankan mode simulasi data.</p>
         <button id="close-modal" class="mt-4 px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors duration-200">Tutup</button>
     </div>
 
@@ -525,7 +525,7 @@
             lucide.createIcons(); 
             
             // Show a modal explaining the connection issue and simulation mode.
-            showMessageModal("Kesalahan Koneksi!", `Gagal terhubung ke ${API_URL}. Ini mungkin karena masalah Mixed Content (HTTPS ke HTTP) atau CORS. Menjalankan mode simulasi data.`);
+            showMessageModal("Kesalahan Koneksi!", `Gagal terhubung ke server. Ini kemungkinan besar karena server API Anda di \`http://110.232.84.186:5001\` tidak dapat diakses secara publik (misalnya, diblokir oleh firewall atau tidak berjalan), bukan masalah pada kode halaman ini. Menjalankan mode simulasi data.`);
             
             runSimulation(); // Run simulation once immediately
             simulationIntervalId = setInterval(runSimulation, 5000); // Repeat simulation every 5 seconds
