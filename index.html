@@ -377,7 +377,11 @@
     <script>
         // --- CONFIGURATION ---
         // API endpoint for server statistics.
-        const API_URL = 'http://110.232.84.186:5001/stats';
+        // IMPORTANT: If hosting on HTTPS (like GitHub Pages), this API_URL must also be HTTPS
+        // to avoid "Mixed Content" errors. If your server only supports HTTP, you might need
+        // a reverse proxy or to host the API on an HTTPS server.
+        // Changed to use a CORS proxy to bypass Mixed Content and CORS issues.
+        const API_URL = 'https://corsproxy.io/?http://110.232.84.186:5001/stats'; 
 
         // --- DOM ELEMENTS ---
         // Cache frequently accessed DOM elements for performance.
