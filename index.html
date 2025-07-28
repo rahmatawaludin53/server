@@ -403,6 +403,7 @@
 
         // --- STATE VARIABLES ---
         let simulationIntervalId = null; // Stores the interval ID for simulation mode.
+        let errorModalShown = false; // Flag to ensure the error modal is shown only once.
 
         // --- CUSTOM MESSAGE MODAL FUNCTIONS ---
         /**
@@ -508,8 +509,11 @@
             
             lucide.createIcons(); 
             
-            const newPortMessage = `Gagal terhubung ke server. Ini kemungkinan besar karena server API Anda di \`http://110.232.84.186:2001\` tidak dapat diakses secara publik (misalnya, diblokir oleh firewall atau tidak berjalan), bukan masalah pada kode halaman ini. Menjalankan mode simulasi data.`;
-            showMessageModal("Kesalahan Koneksi!", newPortMessage);
+            if (!errorModalShown) {
+                const newPortMessage = `Gagal terhubung ke server. Ini kemungkinan besar karena server API Anda di \`http://110.232.84.186:2001\` tidak dapat diakses secara publik (misalnya, diblokir oleh firewall atau tidak berjalan), bukan masalah pada kode halaman ini. Menjalankan mode simulasi data.`;
+                showMessageModal("Kesalahan Koneksi!", newPortMessage);
+                errorModalShown = true;
+            }
             
             runSimulation();
             simulationIntervalId = setInterval(runSimulation, 5000);
@@ -521,7 +525,6 @@
          */
         async function updateStats() {
             try {
-                // Timeout logic has been removed to give the proxy more time to connect.
                 const response = await fetch(API_URL);
                 
                 if (!response.ok) {
