@@ -377,11 +377,9 @@
     <script>
         // --- CONFIGURATION ---
         // API endpoint for server statistics.
-        // IMPORTANT: If hosting on HTTPS (like GitHub Pages), this API_URL must also be HTTPS
-        // to avoid "Mixed Content" errors. If your server only supports HTTP, you might need
-        // a reverse proxy or to host the API on an HTTPS server.
-        // Changed to use a CORS proxy to bypass Mixed Content and CORS issues.
-        const API_URL = 'https://api.allorigins.win/raw?url=http://110.232.84.186:5001/stats'; 
+        // The CORS proxy has been removed to attempt a direct connection.
+        // This requires the backend server to have CORS enabled, which we did.
+        const API_URL = 'http://110.232.84.186:5001/stats'; 
 
         // --- DOM ELEMENTS ---
         // Cache frequently accessed DOM elements for performance.
@@ -511,7 +509,7 @@
         function startSimulationMode() {
             // Prevent multiple simulation intervals from running simultaneously
             if (simulationIntervalId) {
-                clearInterval(simulationIntervalId);
+                return; // Already in simulation mode, do nothing.
             }
 
             console.log("Memulai mode simulasi data karena koneksi gagal.");
@@ -538,7 +536,14 @@
          */
         async function updateStats() {
             try {
-                const response = await fetch(API_URL);
+                // Set a timeout for the fetch request
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 4500); // 4.5 second timeout
+
+                const response = await fetch(API_URL, { signal: controller.signal });
+                
+                clearTimeout(timeoutId); // Clear the timeout if the request succeeds
+
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
