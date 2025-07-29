@@ -370,14 +370,14 @@
             <i data-lucide="circle-alert" class="w-6 h-6 mr-2 flex-shrink-0"></i>
             <h4 id="modal-title" class="font-bold text-lg">Kesalahan Koneksi!</h4>
         </div>
-        <p id="modal-message">Gagal terhubung ke server. Ini kemungkinan besar karena server API Anda di `http://110.232.84.186:2001` tidak dapat diakses secara publik (misalnya, diblokir oleh firewall atau tidak berjalan), bukan masalah pada kode halaman ini. Menjalankan mode simulasi data.</p>
+        <p id="modal-message">Gagal terhubung ke server. Ini kemungkinan besar karena server API Anda di `http://110.232.84.186:3000` tidak dapat diakses secara publik (misalnya, diblokir oleh firewall atau tidak berjalan), bukan masalah pada kode halaman ini. Menjalankan mode simulasi data.</p>
         <button id="close-modal" class="mt-4 px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors duration-200">Tutup</button>
     </div>
 
     <script>
         // --- CONFIGURATION ---
-        // Switched to a different CORS proxy to resolve the 400 Bad Request error.
-        const API_URL = 'https://cors.bridged.cc/' + 'http://110.232.84.186:2001/stats';
+        // Updated API URL to use the new port 3000.
+        const API_URL = 'https://api.allorigins.win/raw?url=' + encodeURIComponent('http://110.232.84.186:3000/stats');
 
         // --- DOM ELEMENTS ---
         // Cache frequently accessed DOM elements for performance.
@@ -510,7 +510,7 @@
             lucide.createIcons(); 
             
             if (!errorModalShown) {
-                const newPortMessage = `Gagal terhubung ke server. Ini kemungkinan besar karena server API Anda di \`http://110.232.84.186:2001\` tidak dapat diakses secara publik (misalnya, diblokir oleh firewall atau tidak berjalan), bukan masalah pada kode halaman ini. Menjalankan mode simulasi data.`;
+                const newPortMessage = `Gagal terhubung ke server. Ini kemungkinan besar karena server API Anda di \`http://110.232.84.186:3000\` tidak dapat diakses secara publik (misalnya, diblokir oleh firewall atau tidak berjalan), bukan masalah pada kode halaman ini. Menjalankan mode simulasi data.`;
                 showMessageModal("Kesalahan Koneksi!", newPortMessage);
                 errorModalShown = true;
             }
